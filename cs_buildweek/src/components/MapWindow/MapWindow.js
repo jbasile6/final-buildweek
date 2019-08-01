@@ -195,29 +195,79 @@ export class MapWindow extends Component {
                     errors: res.data.errors,
                     messages: res.data.messages
                 }
-            })
+            });
         } catch (err) {
             console.log(err);
-        }
-    }
+        };
+    };
+    //examineRoom^^^^^^---------------------------------------------------------------------------------------
+
+    pickupTreasure = async (name) => {
+    let treasure = name;
+    try {
+        let res = await axios({
+            url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/take/',
+            method: 'post',
+            headers: {
+                Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+            },
+            data: {
+                name: treasure
+            }
+        });
+
+        this.setState({
+            cooldown: res.data.cooldown
+        });
+        console.log('Item PICKUP- Inventory:', this.state.player_stats.inventory)
+    } catch (err) {
+        console.log(err)
+    };
+}
+//pickup Item^^^^^^---------------------------------------------------------------------------------------
+dropTreasure = async (name) => {
+    let treasure = name;
+    try {
+        let res = await axios({
+            url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/',
+            method: 'post',
+            headers: {
+                Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+            },
+            data: {
+                name: treasure
+            }
+        });
+
+        this.setState({
+            cooldown: res.data.cooldown
+        });
+        console.log('Item Dropped:', this.state.player_stats.inventory)
+    } catch (err) {
+        console.log(err)
+    };
+}
+//drop Item^^^^^^---------------------------------------------------------------------------------------
 
 
-
-
-    render() {
-        return (
-            <>
-                <h1>CS BUILD WEEK</h1>
-                <div>
-                    <button onClick={() => this.movePlayer('n')}>North</button>
-                    <button onClick={() => this.movePlayer('s')}>South</button>
-                    <button onClick={() => this.movePlayer('e')}>East</button>
-                    <button onClick={() => this.movePlayer('w')}>West</button>
-                    <button onClick={() => this.examineRoom('player84')}>Examine</button>
-                </div>
-            </>
-        )
-    }
+render() {
+    return (
+        <>
+            <h1>CS BUILD WEEK</h1>
+            <div>
+                <button onClick={() => this.movePlayer('n')}>North</button>
+                <button onClick={() => this.movePlayer('s')}>South</button>
+                <button onClick={() => this.movePlayer('e')}>East</button>
+                <button onClick={() => this.movePlayer('w')}>West</button>
+                {/* hardcoded button to examine a player in the starting room, will make dynamic to give options to inspect any players/ items in the room */}
+                <button onClick={() => this.examineRoom('player84')}>Examine</button>
+                {/* hardcoded pickup and drop buttons looking specifically for small treasure, will make dynamic later */}
+                <button onClick={() => this.pickupTreasure('Treasure')}>Pickup Treasure</button>
+                <button onClick={() => this.dropTreasure('Treasure')}>Drop Treasure</button>
+            </div>
+        </>
+    )
+}
 
 }
 
