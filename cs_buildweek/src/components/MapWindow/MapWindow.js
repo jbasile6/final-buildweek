@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import CountdownTimer from 'react-component-countdown-timer';
+import Countdown from '../Countdown/Countdown';
 
 // my API key: 61577c390423683a9bfc0e9a28456c70536f046b
 
@@ -25,7 +25,7 @@ export class MapWindow extends Component {
                 description: null,
                 coordinates: null,
                 elevation: null,
-                terrain: null
+                terrain: null,
             },
             player_stats: {
                 name: '',
@@ -38,7 +38,8 @@ export class MapWindow extends Component {
                 errors: [],
                 messages: [],
             },
-            examined: {}
+            examined: {},
+            confirmSale: false
         };
     }
     // state^^^^---------------------------------------------------------------------------------------
@@ -281,11 +282,62 @@ export class MapWindow extends Component {
             this.setState({
                 name: res.data
             })
-        }catch (err) {
+        } catch (err) {
             console.log(err)
         }
     }
     //nameChange^^^^^^---------------------------------------------------------------------------------------
+
+
+    sellTreasure = async (name) => {
+        let treasure = name
+        try {
+            let res = await axios({
+                url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/',
+                method: 'post',
+                headers: {
+                    Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+                },
+                data: {
+                    name: treasure
+                }
+            })
+            this.setState({
+                confirmSale: true
+            })
+
+            console.log(res.data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    //sellTreasure^^^^^^---------------------------------------------------------------------------------------
+
+    sellTreasure = async (name) => {
+        let treasure = name
+        try {
+            let res = await axios({
+                url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/',
+                method: 'post',
+                headers: {
+                    Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+                },
+                data: {
+                    name: treasure,
+                    confirm: 'yes'
+                }
+            })
+            this.setState({
+                confirmSale: false
+            })
+            console.log(res.data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    //confirmSaleTreasure^^^^^^---------------------------------------------------------------------------------------
+
+
 
 
 
@@ -303,18 +355,18 @@ export class MapWindow extends Component {
                     </div>
                     <div className='pickup-drop'>
                         {this.state.current_room_data.items.length > 0 ? (
-                            this.state.current_room_data.items.map(eachItem => {
+                            this.state.current_room_data.items.map((eachItem, index) => {
                                 return (
-                                    <button onClick={() => this.pickupTreasure(eachItem)}>
+                                    <button key={index} onClick={() => this.pickupTreasure(eachItem)}>
                                         Pickup: {eachItem}
                                     </button>
                                 )
                             })
                         ) : null}
                         {this.state.player_stats.inventory.length > 0 ? (
-                            this.state.player_stats.inventory.map(eachItem => {
+                            this.state.player_stats.inventory.map((eachItem, index) => {
                                 return (
-                                    <button onClick={() => this.dropTreasure(eachItem)}>
+                                    <button key={index} onClick={() => this.dropTreasure(eachItem)}>
                                         Drop: {eachItem}
                                     </button>
                                 )
@@ -327,13 +379,38 @@ export class MapWindow extends Component {
                             <button onClick={() => this.prayToShrine()}>Pray to Shrine</button>
                         ) : null}
                     </div>
+                    <div className='sell'>
+                        {/* sell */}
+                        {this.state.current_room_data.title === "Shop" &&
+                            this.state.confirmSale === false &&
+                            this.state.player_stats.inventory > 0 ? (
+                                this.state.player_stats.inventory.map((eachItem, index) => {
+                                    return (
+                                        <button key={index} onClick={this.sellTreasure(eachItem)}>
+                                            Sell: {eachItem}
+                                        </button>
+                                    )
+                                })
+                            // confirm sale
+                            ) : this.state.current_room_data.title === "Shop" &&
+                                this.state.confirmSale === true &&
+                                this.state.player_stats.inventory > 0 ? (
+                                    this.state.player_stats.inventory.map((eachItem, index) => {
+                                        return (
+                                        <button key={index} onClick={this.confirmSale(eachItem)}>
+                                            Confirm Sale of: {eachItem}
+                                        </button>
+                                        )
+                                    })
+                                ) : null}
+                    </div>
                 </div>
                 <div className='display-room-data'>
                     <div className='items'>
                         <h3>Items</h3>
                         {this.state.current_room_data.items.length > 0 ? (
-                            this.state.current_room_data.items.map(eachItem => (
-                                <div key={eachItem}>
+                            this.state.current_room_data.items.map((eachItem, index) => (
+                                <div key={index}>
                                     <button onClick={() => this.examineRoom(eachItem)}>
                                         Examine: {eachItem}
                                     </button>
@@ -360,13 +437,10 @@ export class MapWindow extends Component {
                     <div className='exits'>
                         <h3>Room Exits</h3>
                         {this.state.current_room_data.exits.map(eachExit => (
-                            <p key={eachExit}>
-                                {eachExit.toUpperCase()}
-                            </p>
+                            <div key={eachExit}>
+                                <p>{eachExit.toUpperCase()}</p>
+                            </div>
                         ))}
-                        {/* {this.state.cooldown === this.state.cooldown ? (
-                            <CountdownTimer count={this.state.cooldown} />
-                        ) : <CountdownTimer count={this.state.cooldown} />} */}
                     </div>
                 </div>
                 <div className='player-stats'>
@@ -383,6 +457,7 @@ export class MapWindow extends Component {
                     <p>{this.state.current_room_data.description}</p>
                     <p>{this.state.current_room_data.terrain}</p>
                 </div>
+                <Countdown count={this.state.cooldown} />
             </>
         )
     }
