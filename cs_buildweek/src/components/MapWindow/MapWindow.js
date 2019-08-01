@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import CountdownTimer from 'react-component-countdown-timer';
 
 // my API key: 61577c390423683a9bfc0e9a28456c70536f046b
 
@@ -203,71 +204,188 @@ export class MapWindow extends Component {
     //examineRoom^^^^^^---------------------------------------------------------------------------------------
 
     pickupTreasure = async (name) => {
-    let treasure = name;
-    try {
-        let res = await axios({
-            url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/take/',
-            method: 'post',
-            headers: {
-                Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
-            },
-            data: {
-                name: treasure
-            }
-        });
+        let treasure = name;
+        try {
+            let res = await axios({
+                url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/take/',
+                method: 'post',
+                headers: {
+                    Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+                },
+                data: {
+                    name: treasure
+                }
+            });
 
-        this.setState({
-            cooldown: res.data.cooldown
-        });
-        console.log('Item PICKUP- Inventory:', this.state.player_stats.inventory)
-    } catch (err) {
-        console.log(err)
-    };
-}
-//pickup Item^^^^^^---------------------------------------------------------------------------------------
-dropTreasure = async (name) => {
-    let treasure = name;
-    try {
-        let res = await axios({
-            url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/',
-            method: 'post',
-            headers: {
-                Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
-            },
-            data: {
-                name: treasure
-            }
-        });
+            this.setState({
+                cooldown: res.data.cooldown
+            });
+            console.log('Item PICKUP- Inventory:', this.state.player_stats.inventory)
+        } catch (err) {
+            console.log(err)
+        };
+    }
+    //pickup Item^^^^^^---------------------------------------------------------------------------------------
+    dropTreasure = async (name) => {
+        let treasure = name;
+        try {
+            let res = await axios({
+                url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/',
+                method: 'post',
+                headers: {
+                    Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+                },
+                data: {
+                    name: treasure
+                }
+            });
 
-        this.setState({
-            cooldown: res.data.cooldown
-        });
-        console.log('Item Dropped:', this.state.player_stats.inventory)
-    } catch (err) {
-        console.log(err)
-    };
-}
-//drop Item^^^^^^---------------------------------------------------------------------------------------
+            this.setState({
+                cooldown: res.data.cooldown
+            });
+            console.log('Item Dropped:', this.state.player_stats.inventory)
+        } catch (err) {
+            console.log(err)
+        };
+    }
+    //drop Item^^^^^^---------------------------------------------------------------------------------------
+
+    prayToShrine = async () => {
+        try {
+            let res = await axios({
+                url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/pray/',
+                method: 'post',
+                headers: {
+                    Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+                }
+            })
+            console.log('Pray', res.data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    //PRAY^^^^^^---------------------------------------------------------------------------------------
+
+    changeName = async (newName) => {
+        try {
+            let res = await axios({
+                url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/change_name/',
+                method: 'post',
+                headers: {
+                    Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+                },
+                data: {
+                    name: newName
+                }
+            })
+            this.setState({
+                name: res.data
+            })
+        }catch (err) {
+            console.log(err)
+        }
+    }
+    //nameChange^^^^^^---------------------------------------------------------------------------------------
 
 
-render() {
-    return (
-        <>
-            <h1>CS BUILD WEEK</h1>
-            <div>
-                <button onClick={() => this.movePlayer('n')}>North</button>
-                <button onClick={() => this.movePlayer('s')}>South</button>
-                <button onClick={() => this.movePlayer('e')}>East</button>
-                <button onClick={() => this.movePlayer('w')}>West</button>
-                {/* hardcoded button to examine a player in the starting room, will make dynamic to give options to inspect any players/ items in the room */}
-                <button onClick={() => this.examineRoom('player84')}>Examine</button>
-                {/* hardcoded pickup and drop buttons looking specifically for small treasure, will make dynamic later */}
-                <button onClick={() => this.pickupTreasure('Treasure')}>Pickup Treasure</button>
-                <button onClick={() => this.dropTreasure('Treasure')}>Drop Treasure</button>
-            </div>
-        </>
-    )
-}
+
+
+    render() {
+        return (
+            <>
+                <h1>CS BUILD WEEK</h1>
+                <div className='btns'>
+                    <div className='movement'>
+                        <button onClick={() => this.movePlayer('n')}>North</button>
+                        <button onClick={() => this.movePlayer('s')}>South</button>
+                        <button onClick={() => this.movePlayer('e')}>East</button>
+                        <button onClick={() => this.movePlayer('w')}>West</button>
+                    </div>
+                    <div className='pickup-drop'>
+                        {this.state.current_room_data.items.length > 0 ? (
+                            this.state.current_room_data.items.map(eachItem => {
+                                return (
+                                    <button onClick={() => this.pickupTreasure(eachItem)}>
+                                        Pickup: {eachItem}
+                                    </button>
+                                )
+                            })
+                        ) : null}
+                        {this.state.player_stats.inventory.length > 0 ? (
+                            this.state.player_stats.inventory.map(eachItem => {
+                                return (
+                                    <button onClick={() => this.dropTreasure(eachItem)}>
+                                        Drop: {eachItem}
+                                    </button>
+                                )
+                            })
+                        ) : null}
+
+                    </div>
+                    <div className='pray'>
+                        {this.state.current_room_data.items.includes('shrine') ? (
+                            <button onClick={() => this.prayToShrine()}>Pray to Shrine</button>
+                        ) : null}
+                    </div>
+                </div>
+                <div className='display-room-data'>
+                    <div className='items'>
+                        <h3>Items</h3>
+                        {this.state.current_room_data.items.length > 0 ? (
+                            this.state.current_room_data.items.map(eachItem => (
+                                <div key={eachItem}>
+                                    <button onClick={() => this.examineRoom(eachItem)}>
+                                        Examine: {eachItem}
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                                <p>There are no items in this room.</p>
+                            )}
+                    </div>
+                    <div className='players'>
+                        <h3>Players</h3>
+                        {this.state.current_room_data.players.length > 0 ? (
+                            this.state.current_room_data.players.map(eachPlayer => (
+                                <div key={eachPlayer}>
+                                    <button onClick={() => this.examineRoom(eachPlayer)}>
+                                        Examine: {eachPlayer}
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                                <p>There are no players in this room.</p>
+                            )}
+                    </div>
+                    <div className='exits'>
+                        <h3>Room Exits</h3>
+                        {this.state.current_room_data.exits.map(eachExit => (
+                            <p key={eachExit}>
+                                {eachExit.toUpperCase()}
+                            </p>
+                        ))}
+                        {/* {this.state.cooldown === this.state.cooldown ? (
+                            <CountdownTimer count={this.state.cooldown} />
+                        ) : <CountdownTimer count={this.state.cooldown} />} */}
+                    </div>
+                </div>
+                <div className='player-stats'>
+                    <h3>Player Stats</h3>
+                    <p>Name: {this.state.player_stats.name}</p>
+                    <p>Speed: {this.state.player_stats.speed}</p>
+                    <p>Strength: {this.state.player_stats.strength}</p>
+                    <p>Encumbrance: {this.state.player_stats.encumbrance}</p>
+                </div>
+                <div className='player-stats'>
+                    <h3>Current Room Info</h3>
+                    <p>{this.state.current_room_data.title} : {this.state.current_room_data.current_room_id}</p>
+                    <p>{this.state.current_room_data.coordinates}</p>
+                    <p>{this.state.current_room_data.description}</p>
+                    <p>{this.state.current_room_data.terrain}</p>
+                </div>
+            </>
+        )
+    }
 
 }
 
