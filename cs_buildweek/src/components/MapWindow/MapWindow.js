@@ -271,7 +271,7 @@ render() {
     return (
         <>
             <h1>CS BUILD WEEK</h1>
-            <div>
+            <div className='btns'>
                 <button onClick={() => this.movePlayer('n')}>North</button>
                 <button onClick={() => this.movePlayer('s')}>South</button>
                 <button onClick={() => this.movePlayer('e')}>East</button>
@@ -284,6 +284,30 @@ render() {
                 {this.state.current_room_data.items.includes('shrine') ? (
                     <button onClick={() => this.prayToShrine()}>Pray to Shrine</button>
                 ) : null }
+            </div>
+            <div className='items'>
+                <h3>Items</h3>
+                {this.state.current_room_data.items.length > 0 ? (
+                    this.state.current_room_data.items.map(eachItem => (
+                        <ul key={eachItem}>
+                            <li>{eachItem}</li>
+                        </ul>
+                    ))
+                ) : (
+                    <p>There are no items in this room.</p>
+                )}
+            </div>
+            <div className='players'>
+                <h3>Players</h3>
+                {this.state.current_room_data.players.length > 0 ? (
+                    this.state.current_room_data.players.map(eachPlayer => (
+                        <ul key={eachPlayer}>
+                            <li>{eachPlayer}</li>
+                        </ul>
+                    ))
+                ) : (
+                    <p>There are no players in this room.</p>
+                )}
             </div>
         </>
     )
