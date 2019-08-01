@@ -249,6 +249,23 @@ dropTreasure = async (name) => {
 }
 //drop Item^^^^^^---------------------------------------------------------------------------------------
 
+    prayToShrine = async() => {
+        try {
+            let res = await axios({
+                url: 'https://lambda-treasure-hunt.herokuapp.com/api/adv/pray/',
+                method: 'post',
+                headers: {
+                    Authorization: 'Token 61577c390423683a9bfc0e9a28456c70536f046b'
+                }
+            })
+            console.log('Pray', res.data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+//PRAY^^^^^^---------------------------------------------------------------------------------------
+
+
 
 render() {
     return (
@@ -264,6 +281,9 @@ render() {
                 {/* hardcoded pickup and drop buttons looking specifically for small treasure, will make dynamic later */}
                 <button onClick={() => this.pickupTreasure('Treasure')}>Pickup Treasure</button>
                 <button onClick={() => this.dropTreasure('Treasure')}>Drop Treasure</button>
+                {this.state.current_room_data.items.includes('shrine') ? (
+                    <button onClick={() => this.prayToShrine()}>Pray to Shrine</button>
+                ) : null }
             </div>
         </>
     )
